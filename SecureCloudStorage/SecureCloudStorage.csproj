@@ -111,11 +111,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AES\test.txt" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Site.css" />
+    <Content Include="dummy.html" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -228,7 +230,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="AES\" />
     <Folder Include="App_Data\" />
     <Folder Include="css\" />
     <Folder Include="Denied\" />

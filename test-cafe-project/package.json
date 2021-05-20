@@ -1,0 +1,16 @@
+{
+  "name": "test-cafe-project",
+  "version": "1.0.0",
+  "description": "test",
+  "main": "index.js",
+  "scripts": {
+    "test": "testcafe chrome:headless Login.js --reporter spec,xunit:report.xml"
+},
+  "author": "krishna",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "testcafe": "^1.14.2",
+    "testcafe-reporter-xunit": "^2.1.0"
+  }
+}
