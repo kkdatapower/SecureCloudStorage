@@ -415,23 +415,32 @@ namespace SecureCloudStorage
                 string decryptFilePath = rootPath + "\\Files\\Dec_" + fname;
                 File.WriteAllText(decryptFilePath, decryptText);
 
-                //Response.Clear();
-                //Response.AddHeader("Content-Disposition", "attachment; filename=" + Ffile);
-                //Response.AddHeader("Content-Length", OGFile.Length.ToString());
-                //Response.ContentType = "application/octet-stream";
-                //Response.WriteFile("Files" + Ffile);
+                Response.Clear();
+                Response.AddHeader("Content-Disposition", "attachment; filename=" + "Dec_" + fname);
+                Response.AddHeader("Content-Length", decryptText.Length.ToString());
+                Response.ContentType = "application/octet-stream";
+                Response.WriteFile(decryptFilePath);
                 //Response.End();
+                Response.Flush();
 
-                WebClient req = new WebClient();
-                HttpResponse response = HttpContext.Current.Response;
-                response.Clear();
-                response.ClearContent();
-                response.ClearHeaders();
-                response.Buffer = true;
-                response.AddHeader("Content-Disposition", "attachment;filename=" + "Dec_" + fname);
-                byte[] data = req.DownloadData(decryptFilePath);
-                response.BinaryWrite(data);
-                response.End();
+                //WebClient req = new WebClient();
+                //HttpResponse response = HttpContext.Current.Response;
+                ////response.Flush();
+                //response.Clear();
+                //response.ClearContent();
+                //response.ClearHeaders();
+                ////response.Buffer = true;
+                //response.ContentType = "application/octet-stream";
+                //response.AddHeader("Content-Disposition", "attachment;filename=" + "Dec_" + fname);
+                //byte[] data = req.DownloadData(decryptFilePath);
+                ////Response.TransmitFile(decryptFilePath);
+                //response.BinaryWrite(data);
+                ////response.End();
+                //response.Flush();
+                ////HttpContext.Current.Response.Flush();
+                ////HttpContext.Current.Response.SuppressContent = true;
+                //HttpContext.Current.ApplicationInstance.CompleteRequest();
+
             }
             catch (Exception ec)
             {
