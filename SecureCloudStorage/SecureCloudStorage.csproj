@@ -111,7 +111,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AES\test.txt" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -230,6 +229,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="AES\" />
     <Folder Include="App_Data\" />
     <Folder Include="css\" />
     <Folder Include="Denied\" />
