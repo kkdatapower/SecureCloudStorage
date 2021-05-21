@@ -146,3 +146,4 @@ C:\Users\KKREDDY\source\repos\CISC699Project\SecureCloudStorage\SecureCloudStora
 C:\Users\KKREDDY\source\repos\CISC699Project\SecureCloudStorage\SecureCloudStorage\obj\Debug\SecureCloudStorage.csproj.CopyComplete
 C:\Users\KKREDDY\source\repos\CISC699Project\SecureCloudStorage\SecureCloudStorage\obj\Debug\SecureCloudStorage.dll
 C:\Users\KKREDDY\source\repos\CISC699Project\SecureCloudStorage\SecureCloudStorage\obj\Debug\SecureCloudStorage.pdb
+C:\Users\KKREDDY\source\repos\CISC699Project\SecureCloudStorage\SecureCloudStorage\obj\Debug\SecureCloudStorage.csprojAssemblyReference.cache
