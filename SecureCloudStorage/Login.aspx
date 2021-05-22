@@ -9,7 +9,7 @@
                 <td align="center">
                     <br />
                     <br />
-                    <asp:Label ID="Label1" runat="server" Text="USER LOGIN" Font-Bold="True" Font-Size="16pt" ForeColor="#FCCE54"></asp:Label>
+                    <asp:Label ID="Label1" runat="server" Text="LOGIN" Font-Bold="True" Font-Size="16pt" ForeColor="#FCCE54"></asp:Label>
                     <hr />
                     <br />
                 </td>
