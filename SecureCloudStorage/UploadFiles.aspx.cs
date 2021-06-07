@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -18,7 +19,10 @@ namespace SecureCloudStorage
             Hiding,
             Filling_With_Zeros
         };
-        SqlConnection con = new SqlConnection(@"Server=tcp:securestoragedatabase.database.windows.net,1433;Initial Catalog=secureUpload;Persist Security Info=False;User ID=krishna;Password=Cheppanu$911;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
+        static string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
+
+        SqlConnection con = new SqlConnection(strcon);
+        //SqlConnection con = new SqlConnection(@"Server=tcp:securestoragedatabase.database.windows.net,1433;Initial Catalog=secureUpload;Persist Security Info=False;User ID=krishna;Password=Cheppanu$911;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
         //SqlConnection con = new SqlConnection(@"Data Source=localhost\SQLEXPRESS;Initial Catalog=secureUpload;Integrated Security=True");
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -30,16 +34,39 @@ namespace SecureCloudStorage
             string uid = (string)Session["uid"];
             if (!IsPostBack)
             {
-                string s = "select distinct uid from reg where uid!='" + uid + "'";
+                /*string s = "select distinct uid from reg where uid!='" + uid + "'";
                 SqlDataAdapter sda = new SqlDataAdapter(s, con);
                 DataSet ds = new DataSet();
-                sda.Fill(ds);
+                sda.Fill(ds);*/
+                string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
 
-                int count = ds.Tables[0].Rows.Count;
-                DropDownList1.Items.Add("--Select--");
-                for (int i = 0; i < count; i++)
+                string spName = ConfigurationManager.AppSettings["UploadFilesDistinctUid"].ToString();
+
+                using (SqlConnection conn = new SqlConnection(strcon))
                 {
-                    DropDownList1.Items.Add(ds.Tables[0].Rows[i][0].ToString());
+                    SqlCommand sqlComm = new SqlCommand(spName, conn);
+                    sqlComm.Parameters.AddWithValue("@uuid", uid);
+
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+                    SqlDataAdapter da = new SqlDataAdapter();
+                    da.SelectCommand = sqlComm;
+                    DataSet ds = new DataSet();
+                    da.Fill(ds);
+
+                    int count = ds.Tables[0].Rows.Count;
+                   
+                    DropDownList1.DataSource = ds.Tables[0];
+                    DropDownList1.DataTextField = "Name";
+                    DropDownList1.DataValueField = "uid";
+                    DropDownList1.DataBind();
+                    DropDownList1.Items.Insert(0, "--Select--");
+
+                    //for (int i = 0; i < count; i++)
+                    //{
+                    //    DropDownList1.Items.Add(new SelectListItem { Text = });
+                    //        //ds.Tables[0].Rows[i][0].ToString(),);
+                    //}
                 }
             }
         }
@@ -52,6 +79,7 @@ namespace SecureCloudStorage
                 file = FileUpload1.FileName;
                 path = Server.MapPath("~\\Files\\");
                 FileUpload1.SaveAs(path + file);
+                string keyVal = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456";
 
                 byte[] fileByteArr = File.ReadAllBytes(path + file);
 
@@ -87,7 +115,7 @@ namespace SecureCloudStorage
                     rc2EncryptArr[i] = fileByteArr[incbyte++];
                 }
 
-                string keyVal = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456";
+                
 
                 string encryptAes = AESEncryptUsingByte(aesEncryptArr, keyVal);
                 string encryptDes = DESEncrypt(desEncryptArr, keyVal);
@@ -107,6 +135,7 @@ namespace SecureCloudStorage
             catch (Exception ep)
             {
                 Page.ClientScript.RegisterStartupScript(GetType(), "msgbox", "alert('Please Select a File');", true);
+                throw ep;
             }
 
 
@@ -116,16 +145,22 @@ namespace SecureCloudStorage
             FileUpload2.SaveAs(paths + images);
 
             Bitmap b = new Bitmap(paths + images);
-            byte[] op1 = ConvertBitmapToByteArray(b);
+            //byte[] op1 = ConvertBitmapToByteArray(b);
             Bitmap b1 = embedText(TextBox1.Text, b);
 
             byte[] op = ConvertBitmapToByteArray(b1);
 
-            System.Drawing.Image img1 = byteArrayToImage(op);
+            using (MemoryStream memstr = new MemoryStream(op))
+            {
+                Image img1 = Image.FromStream(memstr);
+                
+            
+            //System.Drawing.Image img1 = byteArrayToImage(op);
             string spath = Server.MapPath("~\\Password\\");
 
             img1.Save(spath + FileUpload2.FileName);
             Image2.ImageUrl = spath + FileUpload2.FileName;
+            }
             string com = "";
             SqlCommand cmd;
             com = "insert into lsb(op) values (@data);";
@@ -139,126 +174,213 @@ namespace SecureCloudStorage
 
             //************************************************Insert**************************
 
-            string s = "select fid from details order by fid desc";
+            /*string s = "select fid from details order by fid desc";
             SqlDataAdapter sds = new SqlDataAdapter(s, con);
             DataSet dss = new DataSet();
-            sds.Fill(dss);
-            string ffid = "";
-            if (dss.Tables[0].Rows.Count > 0)
+            sds.Fill(dss);*/
+
+            string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
+
+            string spName1 = ConfigurationManager.AppSettings["UploadFilesFidInfo"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(strcon))
             {
-                string fid = dss.Tables[0].Rows[0][0].ToString();
-                int fidd = Convert.ToInt16(fid);
-                fidd = fidd + 1;
-                ffid = fidd.ToString();
-            }
-            else
-            {
-                ffid = "101";
-            }
+                SqlCommand sqlComm1 = new SqlCommand(spName1, conn);
+
+                sqlComm1.CommandType = CommandType.StoredProcedure; 
+
+                SqlDataAdapter da1 = new SqlDataAdapter();
+                da1.SelectCommand = sqlComm1;
+                DataSet ds1 = new DataSet();
+                da1.Fill(ds1);
+
+                string ffid = "";
+                if (ds1.Tables[0].Rows.Count > 0)
+                {
+                    string fid = ds1.Tables[0].Rows[0][0].ToString();
+                    int fidd = Convert.ToInt16(fid);
+                    fidd = fidd + 1;
+                    ffid = fidd.ToString();
+                }
+                else
+                {
+                    ffid = "101";
+                }
 
 
-            string aespath1 = Server.MapPath("~\\AES\\" + file);
-            string rcpath1 = Server.MapPath("~\\RC\\" + file);
-            string despath1 = Server.MapPath("~\\DES\\" + file);
+                string aespath1 = Server.MapPath("~\\AES\\" + file);
+                string rcpath1 = Server.MapPath("~\\RC\\" + file);
+                string despath1 = Server.MapPath("~\\DES\\" + file);
 
-            string fileExtension = Path.GetExtension(FileUpload1.PostedFile.FileName);
+                string fileExtension = Path.GetExtension(FileUpload1.PostedFile.FileName);
 
-            string uid = (string)Session["uid"];
-            string com1 = "";
-            SqlCommand cmd1;
-            com1 = "insert into details(uid,fid,filenm,aes,des,rc6,type,lsb) values (@uid,@fid,@fn,@aes,@des,@rc6,@type,@lsb);";
-            con.Open();
-            cmd1 = new SqlCommand(com1, con);
-            cmd1.Parameters.AddWithValue("@uid", uid);
-            cmd1.Parameters.AddWithValue("@fid", ffid);
-            cmd1.Parameters.AddWithValue("@fn", FileUpload1.FileName);
-            cmd1.Parameters.AddWithValue("@aes", aespath1);
-            cmd1.Parameters.AddWithValue("@des", despath1);
-            cmd1.Parameters.AddWithValue("@rc6", rcpath1);
-            cmd1.Parameters.AddWithValue("@type", fileExtension);
-            cmd1.Parameters.AddWithValue("@lsb", op);
-            cmd1.ExecuteNonQuery();
-            con.Close();
+                string uid = (string)Session["uid"];
+                /*string com1 = "";
+                SqlCommand cmd1;
+                com1 = "insert into details(uid,fid,filenm,aes,des,rc6,type,lsb) values (@uid,@fid,@fn,@aes,@des,@rc6,@type,@lsb);";
+                con.Open();
+                cmd1 = new SqlCommand(com1, con);
+                cmd1.Parameters.AddWithValue("@uid", uid);
+                cmd1.Parameters.AddWithValue("@fid", ffid);
+                cmd1.Parameters.AddWithValue("@fn", FileUpload1.FileName);
+                cmd1.Parameters.AddWithValue("@aes", aespath1);
+                cmd1.Parameters.AddWithValue("@des", despath1);
+                cmd1.Parameters.AddWithValue("@rc6", rcpath1);
+                cmd1.Parameters.AddWithValue("@type", fileExtension);
+                cmd1.Parameters.AddWithValue("@lsb", op);
+                cmd1.ExecuteNonQuery();
+                con.Close();*/
 
-            string ss = "select fid from details order by fid desc";
-            SqlDataAdapter sdss = new SqlDataAdapter(ss, con);
-            DataSet dsss = new DataSet();
-            sdss.Fill(dsss);
-            string ffids = "";
-            if (dsss.Tables[0].Rows.Count > 0)
-            {
-                string fids = dsss.Tables[0].Rows[0][0].ToString();
-                int fidds = Convert.ToInt16(fids);
-                fidds = fidds + 1;
-                ffids = fidds.ToString();
-            }
-            else
-            {
-                ffids = "101";
-            }
+                string spName2 = ConfigurationManager.AppSettings["UploadFilesInfo"].ToString();
 
-            string com2 = "";
-            SqlCommand cmd2;
-            com2 = "insert into details(uid,fid,filenm,aes,des,rc6,type,lsb) values (@uid,@fid,@fn,@aes,@des,@rc6,@type,@lsb);";
-            con.Open();
-            cmd2 = new SqlCommand(com2, con);
-            cmd2.Parameters.AddWithValue("@uid", DropDownList1.Text);
-            cmd2.Parameters.AddWithValue("@fid", ffid);
-            cmd2.Parameters.AddWithValue("@fn", FileUpload1.FileName);
-            cmd2.Parameters.AddWithValue("@aes", aespath1);
-            cmd2.Parameters.AddWithValue("@des", despath1);
-            cmd2.Parameters.AddWithValue("@rc6", rcpath1);
-            cmd2.Parameters.AddWithValue("@type", fileExtension);
-            cmd2.Parameters.AddWithValue("@lsb", op);
-            cmd2.ExecuteNonQuery();
-            con.Close();
+                using (SqlConnection conn1 = new SqlConnection(strcon))
+                {
+                    SqlCommand sqlComm2 = new SqlCommand(spName2, conn1);
+                    sqlComm2.Parameters.AddWithValue("@uid", uid);
+                    sqlComm2.Parameters.AddWithValue("@fid", ffid);
+                    sqlComm2.Parameters.AddWithValue("@filenm", FileUpload1?.FileName);
+                    sqlComm2.Parameters.AddWithValue("@aes", aespath1);
+                    sqlComm2.Parameters.AddWithValue("@des", despath1);
+                    sqlComm2.Parameters.AddWithValue("@rc", rcpath1);
+                    sqlComm2.Parameters.AddWithValue("@type", fileExtension);
+                    sqlComm2.Parameters.AddWithValue("@lsb", op);
 
-            string sem = "select email from reg where uid='" + DropDownList1.Text + "'";
-            SqlDataAdapter sda = new SqlDataAdapter(sem, con);
-            DataSet ds = new DataSet();
-            sda.Fill(ds);
+                    sqlComm2.CommandType = CommandType.StoredProcedure;
+                    SqlDataAdapter da2 = new SqlDataAdapter();
+                    da2.SelectCommand = sqlComm2;
+                    DataSet ds2 = new DataSet();
+                    da2.Fill(ds2);
+                }
 
+                /*string ss = "select fid from details order by fid desc";
+                SqlDataAdapter sdss = new SqlDataAdapter(ss, con);
+                DataSet dsss = new DataSet();
+                sdss.Fill(dsss);*/
 
+                string spName3 = ConfigurationManager.AppSettings["UploadFilesFidInfo"].ToString();
 
-            MailMessage mail = new MailMessage();
-            SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
-            mail.From = new MailAddress("kk.datapower@gmail.com");
-            string email = "";
-            if (ds.Tables[0].Rows.Count > 0)
-            {
-                string eml = ds.Tables[0].Rows[0][0].ToString();
-                //int eml1 = Convert.ToInt16(eml);
-                //eml1 = eml1 + 1;
-                email = eml.ToString();
-            }
-            else
-            {
-                email = "krishnakreddy77@gmail.com";
-            }
-            //string email = ds.Tables[0].Rows[0][0].ToString();
-            mail.To.Add(email);
-            mail.Subject = "Image";
-            mail.Body = "Key is " + TextBox1.Text;
+                SqlCommand sqlComm3 = new SqlCommand(spName3, conn);
 
-            SmtpServer.Port = 587;
-            SmtpServer.EnableSsl = true;
-            SmtpServer.DeliveryMethod = SmtpDeliveryMethod.Network;
-            SmtpServer.UseDefaultCredentials = false;
-            SmtpServer.Credentials = new System.Net.NetworkCredential("kk.datapower@gmail.com", "Kishore14");
+                sqlComm1.CommandType = CommandType.StoredProcedure;
 
-            //Attachment
-            System.Net.Mail.Attachment attachment;
+                SqlDataAdapter da3 = new SqlDataAdapter();
+                da3.SelectCommand = sqlComm3;
+                DataSet dsss = new DataSet();
+                da3.Fill(dsss);
 
-            attachment = new System.Net.Mail.Attachment(Image2.ImageUrl);
-            mail.Attachments.Add(attachment);
+                string ffids = "";
+                if (dsss.Tables[0].Rows.Count > 0)
+                {
+                    string fids = dsss.Tables[0].Rows[0][0].ToString();
+                    int fidds = Convert.ToInt16(fids);
+                    fidds = fidds + 1;
+                    ffids = fidds.ToString();
+                }
+                else
+                {
+                    ffids = "101";
+                }
 
-            SmtpServer.Send(mail);
+                /*string com2 = "";
+                SqlCommand cmd2;
+                com2 = "insert into details(uid,fid,filenm,aes,des,rc6,type,lsb) values (@uid,@fid,@fn,@aes,@des,@rc6,@type,@lsb);";
+                con.Open();
+                cmd2 = new SqlCommand(com2, con);
+                cmd2.Parameters.AddWithValue("@uid", DropDownList1.Text);
+                cmd2.Parameters.AddWithValue("@fid", ffid);
+                cmd2.Parameters.AddWithValue("@fn", FileUpload1.FileName);
+                cmd2.Parameters.AddWithValue("@aes", aespath1);
+                cmd2.Parameters.AddWithValue("@des", despath1);
+                cmd2.Parameters.AddWithValue("@rc6", rcpath1);
+                cmd2.Parameters.AddWithValue("@type", fileExtension);
+                cmd2.Parameters.AddWithValue("@lsb", op);
+                cmd2.ExecuteNonQuery();
+                con.Close();*/
+                if (DropDownList1?.SelectedValue?.ToString() != "--Select--") { 
+                using (SqlConnection conn1 = new SqlConnection(strcon))
+                {
+                    SqlCommand sqlComm4 = new SqlCommand(spName2, conn1);
+                    sqlComm4.Parameters.AddWithValue("@uid", DropDownList1?.SelectedValue?.ToString());
+                    sqlComm4.Parameters.AddWithValue("@fid", ffid);
+                    sqlComm4.Parameters.AddWithValue("@filenm", FileUpload1?.FileName);
+                    sqlComm4.Parameters.AddWithValue("@aes", aespath1);
+                    sqlComm4.Parameters.AddWithValue("@des", despath1);
+                    sqlComm4.Parameters.AddWithValue("@rc", rcpath1);
+                    sqlComm4.Parameters.AddWithValue("@type", fileExtension);
+                    sqlComm4.Parameters.AddWithValue("@lsb", op);
 
-            string fname = FileUpload1.FileName;
-            string Fpath = Server.MapPath("~\\Files\\");
-            if (File.Exists(Fpath + fname))
-            {
-                File.Delete(Fpath + fname);
+                    sqlComm4.CommandType = CommandType.StoredProcedure;
+                    SqlDataAdapter da4 = new SqlDataAdapter();
+                    da4.SelectCommand = sqlComm4;
+                    DataSet ds4 = new DataSet();
+                    da4.Fill(ds4);
+                }
+                }
+
+                /*string sem = "select email from reg where uid='" + DropDownList1.Text + "'";
+                SqlDataAdapter sda = new SqlDataAdapter(sem, con);
+                DataSet ds = new DataSet();
+                sda.Fill(ds);*/
+                string spName5 = ConfigurationManager.AppSettings["EmailInfo"].ToString();
+                using (SqlConnection conn1 = new SqlConnection(strcon))
+                {
+                    SqlCommand sqlComm5 = new SqlCommand(spName5, conn1);
+                    sqlComm5.Parameters.AddWithValue("@uid", DropDownList1?.SelectedValue?.ToString());
+
+                    sqlComm5.CommandType = CommandType.StoredProcedure;
+                    SqlDataAdapter da5 = new SqlDataAdapter();
+                    da5.SelectCommand = sqlComm5;
+                    DataSet ds5 = new DataSet();
+                    da5.Fill(ds5);
+
+                    string smtpServer = ConfigurationManager.AppSettings["SMTPServerName"].ToString();
+                    string smtpUserName = ConfigurationManager.AppSettings["SMTPUserName"].ToString();
+                    string smtpPassword = ConfigurationManager.AppSettings["SMTPPassword"].ToString();
+
+                    MailMessage mail = new MailMessage();
+                    SmtpClient SmtpServer = new SmtpClient(smtpServer);
+                    mail.From = new MailAddress(smtpUserName);
+                    string email = "";
+                    if (ds5.Tables[0].Rows.Count > 0)
+                    {
+                        string eml = ds5.Tables[0].Rows[0][0].ToString();
+                        //int eml1 = Convert.ToInt16(eml);
+                        //eml1 = eml1 + 1;
+                        email = eml.ToString();
+                    }
+                    else
+                    {
+                        email = Session["usrEmail"]?.ToString();
+                            //"krishnakreddy77@gmail.com";
+                    }
+
+                    //string email = ds.Tables[0].Rows[0][0].ToString();
+                    mail.To.Add(email);
+                    mail.Subject = "Image";
+                    mail.IsBodyHtml = true;
+                    mail.Body = "Key is : " + TextBox1.Text + "<br /> <br /> File Name is : " + FileUpload1?.FileName;
+
+                    SmtpServer.Port = 587;
+                    SmtpServer.EnableSsl = true;
+                    SmtpServer.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    SmtpServer.UseDefaultCredentials = false;
+                    SmtpServer.Credentials = new System.Net.NetworkCredential(smtpUserName, smtpPassword);
+
+                    //Attachment
+                    System.Net.Mail.Attachment attachment;
+
+                    attachment = new System.Net.Mail.Attachment(Image2.ImageUrl);
+                    mail.Attachments.Add(attachment);
+
+                    SmtpServer.Send(mail);
+
+                    string fname = FileUpload1.FileName;
+                    string Fpath = Server.MapPath("~\\Files\\");
+                    if (File.Exists(Fpath + fname))
+                    {
+                        File.Delete(Fpath + fname);
+                    }
+                }
             }
         }
 
@@ -341,34 +463,12 @@ namespace SecureCloudStorage
             return clearText;
         }
 
-        private static byte[] EncryptBytes(SymmetricAlgorithm alg, byte[] message)
-        {
-            if ((message == null) || (message.Length == 0))
-            {
-                return message;
-            }
-
-            if (alg == null)
-            {
-                throw new ArgumentNullException("alg");
-            }
-
-            using (var stream = new MemoryStream())
-            using (var encryptor = alg.CreateEncryptor())
-            using (var encrypt = new CryptoStream(stream, encryptor, CryptoStreamMode.Write))
-            {
-                encrypt.Write(message, 0, message.Length);
-                encrypt.FlushFinalBlock();
-                return stream.ToArray();
-            }
-        }
-
         public System.Drawing.Image byteArrayToImage(byte[] byteArrayIn)
         {
             MemoryStream ms = new MemoryStream(byteArrayIn, 0, byteArrayIn.Length, true);
             ms.Write(byteArrayIn, 0, byteArrayIn.Length);
-            System.Drawing.Image returnImage = System.Drawing.Image.FromStream(ms, true);
-            return (returnImage);
+            using (System.Drawing.Image returnImage = System.Drawing.Image.FromStream(ms, true))
+                return (returnImage);
         }
 
         private byte[] ConvertBitmapToByteArray(Bitmap imageToConvert)

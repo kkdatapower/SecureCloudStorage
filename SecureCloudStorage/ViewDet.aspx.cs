@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -23,7 +24,9 @@ namespace SecureCloudStorage
             Hiding,
             Filling_With_Zeros
         };
-        SqlConnection con = new SqlConnection(@"Server=tcp:securestoragedatabase.database.windows.net,1433;Initial Catalog=secureUpload;Persist Security Info=False;User ID=krishna;Password=Cheppanu$911;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
+        static string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
+        SqlConnection con = new SqlConnection(strcon);
+        //SqlConnection con = new SqlConnection(@"Server=tcp:securestoragedatabase.database.windows.net,1433;Initial Catalog=secureUpload;Persist Security Info=False;User ID=krishna;Password=Cheppanu$911;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
         //SqlConnection con = new SqlConnection(@"Data Source=localhost\SQLEXPRESS;Initial Catalog=secureUpload;Integrated Security=True");
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -35,53 +38,85 @@ namespace SecureCloudStorage
 
             string uuid = Request.QueryString["ID"];
             string ufid = Request.QueryString["FID"];
-            string auth = "select * from details where uid='" + uuid + "' and fid='" + ufid + "'";
+
+            /*string auth = "select * from details where uid='" + uuid + "' and fid='" + ufid + "'";
             SqlDataAdapter sdau = new SqlDataAdapter(auth, con);
             DataSet dsu = new DataSet();
-            sdau.Fill(dsu);
+            sdau.Fill(dsu);*/
+            string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
 
-            if (dsu.Tables[0].Rows.Count == 0)
+            string spName = ConfigurationManager.AppSettings["Auth"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(strcon))
             {
-                Page.ClientScript.RegisterStartupScript(GetType(), "msgbox", "alert('Cannot Access!!!')", true);
-                Session["access"] = "no";
-                Response.Redirect("ViewList.aspx");
-            }
-            else
-            {
-                Session["access"] = "yes";
+                SqlCommand sqlComm = new SqlCommand(spName, conn);
+                sqlComm.Parameters.AddWithValue("@uuid", uuid);
+                sqlComm.Parameters.AddWithValue("@ufid", ufid);
+                //qlComm.Parameters.AddWithValue("@TimeRange", TimeRange);
+
+                sqlComm.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter da = new SqlDataAdapter();
+                da.SelectCommand = sqlComm;
+                DataSet ds = new DataSet();
+                da.Fill(ds);
+                if (ds.Tables[0].Rows.Count == 0)
+                {
+                    Page.ClientScript.RegisterStartupScript(GetType(), "msgbox", "alert('Cannot Access!!!')", true);
+                    Session["access"] = "no";
+                    Response.Redirect("ViewList.aspx");
+                }
+                else
+                {
+                    Session["access"] = "yes";
+                }
             }
 
-            string uid = Request.QueryString["ID"];
+            //string uid = Request.QueryString["ID"];
             string fid = Request.QueryString["FID"];
 
-            string s = "select * from details where fid='" + fid + "'";
+            /*string s = "select * from details where fid='" + fid + "'";
             SqlDataAdapter sda = new SqlDataAdapter(s, con);
             DataSet ds = new DataSet();
-            sda.Fill(ds);
-            string url;
-            string ext = ds.Tables[0].Rows[0][6].ToString();
-            if (ext == ".txt")
+            sda.Fill(ds);*/
+            string spName1 = ConfigurationManager.AppSettings["ViewDetFid"].ToString();
+            using (SqlConnection conn = new SqlConnection(strcon))
             {
-                url = "icons\\txt.png";
+                SqlCommand sqlComm1 = new SqlCommand(spName1, conn);
+                //sqlComm1.Parameters.AddWithValue("@uuid", uuid);
+                sqlComm1.Parameters.AddWithValue("@ufid", ufid);
+                //qlComm.Parameters.AddWithValue("@TimeRange", TimeRange);
+
+                sqlComm1.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter da1 = new SqlDataAdapter();
+                da1.SelectCommand = sqlComm1;
+                DataSet ds1 = new DataSet();
+                da1.Fill(ds1);                
+            
+                string url;
+                string ext = ds1.Tables[0].Rows[0][6].ToString();
+                if (ext == ".txt")
+                {
+                    url = "icons\\txt.png";
+                }
+                else if (ext == ".mp3")
+                {
+                    url = "icons\\mp3.png";
+                }
+                else if (ext == ".mp4")
+                {
+                    url = "icons\\mp4.png";
+                }
+                else if (ext == ".pdf")
+                {
+                    url = "icons\\pdf.png";
+                }
+                else
+                {
+                    url = "icons\\default.png";
+                }
+                Image1.ImageUrl = url;
+                Label1.Text = ds1.Tables[0].Rows[0][2].ToString();
             }
-            else if (ext == ".mp3")
-            {
-                url = "icons\\mp3.png";
-            }
-            else if (ext == ".mp4")
-            {
-                url = "icons\\mp4.png";
-            }
-            else if (ext == ".pdf")
-            {
-                url = "icons\\pdf.png";
-            }
-            else
-            {
-                url = "icons\\default.png";
-            }
-            Image1.ImageUrl = url;
-            Label1.Text = ds.Tables[0].Rows[0][2].ToString();
         }
         private byte[] ConvertBitmapToByteArray(Bitmap imageToConvert)
         {
@@ -91,42 +126,55 @@ namespace SecureCloudStorage
         }
         protected void Button2_Click(object sender, EventArgs e)
         {
-            string uid = Request.QueryString["ID"];
+            //string uid = Request.QueryString["ID"];
             string fid = Request.QueryString["FID"];
-            string s = "select lsb from details where fid='" + fid + "'";
+            /*string s = "select lsb from details where fid='" + fid + "'";
             SqlDataAdapter sda = new SqlDataAdapter(s, con);
             DataTable dt = new DataTable();
-            sda.Fill(dt);
-            string image, path;
-            image = FileUpload1.FileName;
-            path = Server.MapPath("~\\Upload\\");
-            FileUpload1.SaveAs(path + image);
-
-            Bitmap b = new Bitmap(path + image);
-            byte[] op1 = ConvertBitmapToByteArray(b);
-
-            byte[] ba = (byte[])dt.Rows[0][0];
-            int lenn = ba.Length;
-
-            int Clen = op1.Length + 13;
-            //int len = ba.Length;
-
-            if (Clen == lenn || Clen - 13 == lenn)
+            sda.Fill(dt);*/
+            string spName2 = ConfigurationManager.AppSettings["ViewDetlsb"].ToString();
+            using (SqlConnection conn = new SqlConnection(strcon))
             {
-                Bitmap img2 = (Bitmap)byteArrayToImage(ba);
-                string res = extractText(img2);
-                TextBox1.Text = res;
-                Button1.Enabled = true;
-                TextBox1.ForeColor = System.Drawing.Color.Black;
-            }
-            else
-            {
-                Response.Redirect("dummy.html");
-                TextBox1.Text = "Wrong Image";
-                Button1.Enabled = false;
-                TextBox1.ForeColor = System.Drawing.Color.Red;
-            }
+                SqlCommand sqlComm2 = new SqlCommand(spName2, conn);
+                sqlComm2.Parameters.AddWithValue("@ufid", fid);
+                //qlComm.Parameters.AddWithValue("@TimeRange", TimeRange);
 
+                sqlComm2.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter da2 = new SqlDataAdapter();
+                da2.SelectCommand = sqlComm2;
+                DataTable ds2 = new DataTable();
+                da2.Fill(ds2);
+
+                string image, path;
+                image = FileUpload1.FileName;
+                path = Server.MapPath("~\\Upload\\");
+                FileUpload1.SaveAs(path + image);
+
+                Bitmap b = new Bitmap(path + image);
+                byte[] op1 = ConvertBitmapToByteArray(b);
+
+                byte[] ba = (byte[])ds2.Rows[0][0];
+                int lenn = ba.Length;
+
+                int Clen = op1.Length + 13;
+                //int len = ba.Length;
+
+                if (Clen == lenn || Clen - 13 == lenn)
+                {
+                    Bitmap img2 = (Bitmap)byteArrayToImage(ba);
+                    string res = extractText(img2);
+                    TextBox1.Text = res;
+                    Button1.Enabled = true;
+                    TextBox1.ForeColor = System.Drawing.Color.Black;
+                }
+                else
+                {
+                    Response.Redirect("dummy.html");
+                    TextBox1.Text = "Wrong Image";
+                    Button1.Enabled = false;
+                    TextBox1.ForeColor = System.Drawing.Color.Red;
+                }
+            }
 
         }
 
@@ -423,56 +471,12 @@ namespace SecureCloudStorage
                 //Response.End();
                 Response.Flush();
 
-                //WebClient req = new WebClient();
-                //HttpResponse response = HttpContext.Current.Response;
-                ////response.Flush();
-                //response.Clear();
-                //response.ClearContent();
-                //response.ClearHeaders();
-                ////response.Buffer = true;
-                //response.ContentType = "application/octet-stream";
-                //response.AddHeader("Content-Disposition", "attachment;filename=" + "Dec_" + fname);
-                //byte[] data = req.DownloadData(decryptFilePath);
-                ////Response.TransmitFile(decryptFilePath);
-                //response.BinaryWrite(data);
-                ////response.End();
-                //response.Flush();
-                ////HttpContext.Current.Response.Flush();
-                ////HttpContext.Current.Response.SuppressContent = true;
-                //HttpContext.Current.ApplicationInstance.CompleteRequest();
-
             }
             catch (Exception ec)
             {
-                /* string uid = Request.QueryString["ID"];
-                 string fid = Request.QueryString["FID"];
-
-                 string s = "select * from details where fid='" + fid + "'";
-                 SqlDataAdapter sda = new SqlDataAdapter(s, con);
-                 DataSet ds = new DataSet();
-                 sda.Fill(ds);
-
-                 string Fpath = Server.MapPath("~\\Files\\");
-                 string fname = ds.Tables[0].Rows[0][2].ToString();
-                 string Ffile = "Dec_w" + fname;
-                 File.Create(Fpath+Ffile);File.OpenWrite(Fpath + Ffile);
-                 File.WriteAllText(Fpath+Ffile, "This is Wrong File downloaded as the right key couldn't be fetched to have access to the right file");
-
-                 /*Response.Clear();
-                 StringWriter oStringWriter = new StringWriter();
-                // oStringWriter.WriteLine("Line 1");
-                 Response.ContentType = "text/plain";
-
-                 Response.AddHeader("content-disposition", "attachment;filename=" +Ffile );
-                 File.WriteAllText(Fpath+Ffile, String.Empty);
-                 Response.Clear();
-
-
-                 StreamWriter strm = File.CreateText(Fpath+Ffile);
-                 strm.Flush();
-                 strm.Close();*/
+                throw ec;
             }
-            //Response.Redirect(Fpath + Ffile);
+
         }
 
         public static string extractText(Bitmap bmp)
@@ -561,41 +565,20 @@ namespace SecureCloudStorage
             return result;
         }
 
-        private static byte[] DecryptBytes(SymmetricAlgorithm alg, byte[] message)
-        {
-            if ((message == null) || (message.Length == 0))
-            {
-                return message;
-            }
-
-            if (alg == null)
-            {
-                throw new ArgumentNullException("alg");
-            }
-
-            using (var stream = new MemoryStream())
-            using (var decryptor = alg.CreateDecryptor())
-            using (var encrypt = new CryptoStream(stream, decryptor, CryptoStreamMode.Write))
-            {
-                encrypt.Write(message, 0, message.Length);
-                encrypt.FlushFinalBlock();
-                return stream.ToArray();
-            }
-        }
-
         public System.Drawing.Image byteArrayToImage(byte[] byteArrayIn)
         {
 
             MemoryStream ms = new MemoryStream(byteArrayIn, 0, byteArrayIn.Length, true);
             ms.Write(byteArrayIn, 0, byteArrayIn.Length);
-            System.Drawing.Image returnImage = System.Drawing.Image.FromStream(ms, true);
+            using (System.Drawing.Image returnImage = System.Drawing.Image.FromStream(ms, true))
 
 
-            //  var fs = new BinaryWriter(new FileStream(@"D:\Imagestegano1\Imagestegano1\images\Enc.gif", FileMode.Create, FileAccess.Write));
-            // fs.Write(byteArrayIn,0,327174);
-            //fs.Close();
 
-            return (returnImage);
+                //  var fs = new BinaryWriter(new FileStream(@"D:\Imagestegano1\Imagestegano1\images\Enc.gif", FileMode.Create, FileAccess.Write));
+                // fs.Write(byteArrayIn,0,327174);
+                //fs.Close();
+
+                return (returnImage);
         }
     }
 }

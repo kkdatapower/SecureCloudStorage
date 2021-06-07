@@ -4,7 +4,7 @@
 
     <div style="width:100%; vertical-align:middle" align="center">
 
-        <table align="center" width="30%">
+        <table role="presentation" align="center" width="30%">
             <tr>
                 <td align="center">
                     <br />

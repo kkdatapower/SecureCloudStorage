@@ -11,7 +11,8 @@ namespace SecureCloudStorage
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["type"] == "user")
+            //if (Session["type"].ToString() == "user")
+            if (Session["type"]?.ToString() == "user")
             {
                 U_Panel.Visible = true;
             }
