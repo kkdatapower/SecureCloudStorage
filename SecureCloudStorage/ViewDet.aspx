@@ -14,16 +14,13 @@
             </tr>
             <tr>
                 <td align="Right" width="40%">
-                  <asp:Label ID="Label3" runat="server" Text="Key" Font-Bold="True" Font-Size="15pt" ForeColor="#0099CC"></asp:Label> :
-                   
+                  <asp:Label ID="Label3" runat="server" Text="Image" Font-Bold="True" Font-Size="15pt" ForeColor="#0099CC"></asp:Label> :                   
                     </td>
-                <td align="center" width="60%">
-                    
-                  
+                <td align="center" width="60%">                  
                     <asp:FileUpload ID="FileUpload1" runat="server" ForeColor="#0099CC" CssClass="txt" />
                     <br />
                     <br />
-                   <%-- <asp:Button ID="Button2" runat="server" OnClick="Button2_Click" Text="Extract"  ForeColor="White" CssClass="button" />--%>
+                   <%--<asp:Button ID="Button2" runat="server" OnClick="Button2_Click" Text="Extract"  ForeColor="White" CssClass="button" />--%>
                 </td>
                 <td align="center" width="40%">
                     <asp:Image ID="Image1" runat="server" width="95%"/>
@@ -34,25 +31,16 @@
                 </td>
             </tr>
             <tr>
-                <td align="Right"   >
-                  <asp:Label ID="Label4" runat="server" Text="Key" Font-Bold="True" Font-Size="15pt" ForeColor="#0099CC"></asp:Label> :
-                   
+                <td align="Right">
+                  <asp:Label ID="Label4" runat="server" Text="Key" Font-Bold="True" Font-Size="15pt" ForeColor="#0099CC"></asp:Label> :           
                     </td>
-                <td  align="center">
-                    
+                <td align="center">
+                    <br />
+                    <br />
                      <asp:TextBox ID="TextBox1" runat="server" CssClass="txt" Enabled="True"></asp:TextBox>
                     <br />
                     <br />
                         <asp:Button ID="Button1" runat="server" Text="Download" OnClick="Button1_Click" ForeColor="White" CssClass="button" />
-                     <%--<br />
-                     <br />
-                     <br />
-                     <br />
-                     <br />
-                     <br />
-                     <br />
-                     <br />
-                     <br />--%>
                 </td>
             </tr>
         </table>

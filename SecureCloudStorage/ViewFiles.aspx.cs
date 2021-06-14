@@ -48,7 +48,7 @@ namespace SecureCloudStorage
                 int count = ds.Tables[0].Rows.Count;
                 StringBuilder strBld = new StringBuilder();
                 strBld.Append("<table align='center' width='70%'> <tr>");
-                //string text = "<table align='center' width='70%'> <tr>";
+                
                 string url = "", name = "", fid, id;
                 for (int i = 0; i < count; i++)
                 {

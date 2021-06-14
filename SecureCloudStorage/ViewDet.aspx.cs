@@ -64,7 +64,6 @@ namespace SecureCloudStorage
                 }
             }
 
-            //string uid = Request.QueryString["ID"];
             string fid = Request.QueryString["FID"];
 
             string spName1 = ConfigurationManager.AppSettings["ViewDetFid"].ToString();
@@ -115,14 +114,14 @@ namespace SecureCloudStorage
         }
         protected void Button2_Click(object sender, EventArgs e)
         {
-            //string uid = Request.QueryString["ID"];
+
             string fid = Request.QueryString["FID"];
             string spName2 = ConfigurationManager.AppSettings["ViewDetlsb"].ToString();
             using (SqlConnection conn = new SqlConnection(strcon))
             {
                 SqlCommand sqlComm2 = new SqlCommand(spName2, conn);
                 sqlComm2.Parameters.AddWithValue("@ufid", fid);
-                //qlComm.Parameters.AddWithValue("@TimeRange", TimeRange);
+
 
                 sqlComm2.CommandType = CommandType.StoredProcedure;
                 SqlDataAdapter da2 = new SqlDataAdapter();
@@ -142,7 +141,7 @@ namespace SecureCloudStorage
                 int lenn = ba.Length;
 
                 int Clen = op1.Length + 13;
-                //int len = ba.Length;
+ 
 
                 if (Clen == lenn || Clen - 13 == lenn)
                 {
@@ -382,8 +381,6 @@ namespace SecureCloudStorage
 
                 string images;
                 images = FileUpload1.FileName;
-                //paths = Server.MapPath("~\\images\\");
-                //FileUpload2.SaveAs(path + images);
 
                 Bitmap b = new Bitmap(path + images);
                 byte[] op1 = ConvertBitmapToByteArray(b);
@@ -395,7 +392,7 @@ namespace SecureCloudStorage
                 string images1, paths;
                 images1 = FileUpload1.FileName;
                 paths = Server.MapPath("~\\images\\");
-                //FileUpload2.SaveAs(paths + images);
+                
 
                 Bitmap b2 = new Bitmap(paths + images1);
                 byte[] op2 = ConvertBitmapToByteArray(b2);
@@ -427,7 +424,7 @@ namespace SecureCloudStorage
 
 
                 //Save the Input File, Decrypt it and save the decrypted file in output path.
-                //  FileUpload1.SaveAs(input);
+                
                 string file = fname, aespath = "", rcpath = "", despath = "";
                 aespath = Server.MapPath("~\\AES\\" + file);
                 rcpath = Server.MapPath("~\\RC\\" + file);
@@ -453,7 +450,7 @@ namespace SecureCloudStorage
                 Response.AddHeader("Content-Length", decryptText.Length.ToString());
                 Response.ContentType = "application/octet-stream";
                 Response.WriteFile(decryptFilePath);
-                //Response.End();
+               
                 Response.Flush();
 
             }
@@ -557,11 +554,6 @@ namespace SecureCloudStorage
             ms.Write(byteArrayIn, 0, byteArrayIn.Length);
             using (System.Drawing.Image returnImage = System.Drawing.Image.FromStream(ms, true))
 
-
-
-                //  var fs = new BinaryWriter(new FileStream(@"D:\Imagestegano1\Imagestegano1\images\Enc.gif", FileMode.Create, FileAccess.Write));
-                // fs.Write(byteArrayIn,0,327174);
-                //fs.Close();
 
                 return (returnImage);
         }

@@ -16,7 +16,7 @@ namespace SecureCloudStorage
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            //if (Session["Add"].ToString() == "Data")
+
             if (Session["Add"]?.ToString() == "Data")
             {
                 Page.ClientScript.RegisterStartupScript(GetType(), "msgbox", "alert('Registered Successfully. You may login now.')", true);
@@ -44,7 +44,6 @@ namespace SecureCloudStorage
                 SqlCommand sqlComm = new SqlCommand(spName, conn);
                 sqlComm.Parameters.AddWithValue("@eml", TextBox1?.Text);
                 sqlComm.Parameters.AddWithValue("@pw", TextBox2?.Text);
-                //qlComm.Parameters.AddWithValue("@TimeRange", TimeRange);
 
                 sqlComm.CommandType = CommandType.StoredProcedure;
 

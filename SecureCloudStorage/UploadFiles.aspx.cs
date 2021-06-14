@@ -134,7 +134,7 @@ namespace SecureCloudStorage
             FileUpload2.SaveAs(paths + images);
 
             Bitmap b = new Bitmap(paths + images);
-            //byte[] op1 = ConvertBitmapToByteArray(b);
+
             Bitmap b1 = embedText(TextBox1.Text, b);
 
             byte[] op = ConvertBitmapToByteArray(b1);
@@ -144,7 +144,7 @@ namespace SecureCloudStorage
                 Image img1 = Image.FromStream(memstr);
                 
             
-            //System.Drawing.Image img1 = byteArrayToImage(op);
+ 
             string spath = Server.MapPath("~\\Password\\");
 
             img1.Save(spath + FileUpload2.FileName);
@@ -359,7 +359,7 @@ namespace SecureCloudStorage
         {
             password = password.Substring(0, 8);
             // Encode message and password
-            //byte[] messageBytes = ASCIIEncoding.ASCII.GetBytes(message);
+
             byte[] passwordBytes = ASCIIEncoding.ASCII.GetBytes(password);
 
             // Set encryption settings -- Use password for both key and init. vector
@@ -389,7 +389,7 @@ namespace SecureCloudStorage
         {
             string EncryptionKey = key.Substring(0, 8);
             string clearText;
-            //byte[] clearBytes = Encoding.Unicode.GetBytes(clearText);
+
             using (RC2 encryptor = RC2.Create())
             {
 
