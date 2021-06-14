@@ -15,8 +15,6 @@ namespace SecureCloudStorage
         static string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
 
         SqlConnection con = new SqlConnection(strcon);
-        //SqlConnection con = new SqlConnection(@"Server=tcp:securestoragedatabase.database.windows.net,1433;Initial Catalog=secureUpload;Persist Security Info=False;User ID=krishna;Password=Cheppanu$911;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
-        //SqlConnection con = new SqlConnection(@"Data Source=localhost\SQLEXPRESS;Initial Catalog=secureUpload;Integrated Security=True");
         protected void Page_Load(object sender, EventArgs e)
         {
 
@@ -39,10 +37,7 @@ namespace SecureCloudStorage
                 da.SelectCommand = sqlComm;
                 DataSet ds = new DataSet();
                 da.Fill(ds);
-                //string s = "select uid from reg order by uid desc";
-                //SqlDataAdapter sda = new SqlDataAdapter(s, con);
-                //DataSet ds = new DataSet();
-                //sda.Fill(ds);
+
                 string uuid = "";
                 if (ds.Tables[0].Rows.Count > 0)
                 {
@@ -71,11 +66,7 @@ namespace SecureCloudStorage
                     da1.SelectCommand = sqlComm1;
                     DataSet ds1 = new DataSet();
                     da1.Fill(ds1);
-                    //string ins = "insert into reg values('" + uuid + "','" + TextBox1.Text + "','" + TextBox2.Text + "','" + TextBox3.Text + "','" + TextBox4.Text + "')";
-                    //SqlCommand cmd = new SqlCommand(ins, con);
-                    /*conn.Open();
-                    sqlComm1.ExecuteNonQuery();
-                    conn.Close();*/
+
                     Session["Add"] = "Data";
                     Response.Redirect("Login.aspx");
                 

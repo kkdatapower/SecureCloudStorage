@@ -26,8 +26,6 @@ namespace SecureCloudStorage
         };
         static string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
         SqlConnection con = new SqlConnection(strcon);
-        //SqlConnection con = new SqlConnection(@"Server=tcp:securestoragedatabase.database.windows.net,1433;Initial Catalog=secureUpload;Persist Security Info=False;User ID=krishna;Password=Cheppanu$911;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
-        //SqlConnection con = new SqlConnection(@"Data Source=localhost\SQLEXPRESS;Initial Catalog=secureUpload;Integrated Security=True");
         protected void Page_Load(object sender, EventArgs e)
         {
             string ses = (string)Session["status"];
@@ -39,10 +37,6 @@ namespace SecureCloudStorage
             string uuid = Request.QueryString["ID"];
             string ufid = Request.QueryString["FID"];
 
-            /*string auth = "select * from details where uid='" + uuid + "' and fid='" + ufid + "'";
-            SqlDataAdapter sdau = new SqlDataAdapter(auth, con);
-            DataSet dsu = new DataSet();
-            sdau.Fill(dsu);*/
             string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
 
             string spName = ConfigurationManager.AppSettings["Auth"].ToString();
@@ -52,7 +46,6 @@ namespace SecureCloudStorage
                 SqlCommand sqlComm = new SqlCommand(spName, conn);
                 sqlComm.Parameters.AddWithValue("@uuid", uuid);
                 sqlComm.Parameters.AddWithValue("@ufid", ufid);
-                //qlComm.Parameters.AddWithValue("@TimeRange", TimeRange);
 
                 sqlComm.CommandType = CommandType.StoredProcedure;
                 SqlDataAdapter da = new SqlDataAdapter();
@@ -74,17 +67,13 @@ namespace SecureCloudStorage
             //string uid = Request.QueryString["ID"];
             string fid = Request.QueryString["FID"];
 
-            /*string s = "select * from details where fid='" + fid + "'";
-            SqlDataAdapter sda = new SqlDataAdapter(s, con);
-            DataSet ds = new DataSet();
-            sda.Fill(ds);*/
             string spName1 = ConfigurationManager.AppSettings["ViewDetFid"].ToString();
             using (SqlConnection conn = new SqlConnection(strcon))
             {
                 SqlCommand sqlComm1 = new SqlCommand(spName1, conn);
-                //sqlComm1.Parameters.AddWithValue("@uuid", uuid);
+
                 sqlComm1.Parameters.AddWithValue("@ufid", ufid);
-                //qlComm.Parameters.AddWithValue("@TimeRange", TimeRange);
+
 
                 sqlComm1.CommandType = CommandType.StoredProcedure;
                 SqlDataAdapter da1 = new SqlDataAdapter();
@@ -128,10 +117,6 @@ namespace SecureCloudStorage
         {
             //string uid = Request.QueryString["ID"];
             string fid = Request.QueryString["FID"];
-            /*string s = "select lsb from details where fid='" + fid + "'";
-            SqlDataAdapter sda = new SqlDataAdapter(s, con);
-            DataTable dt = new DataTable();
-            sda.Fill(dt);*/
             string spName2 = ConfigurationManager.AppSettings["ViewDetlsb"].ToString();
             using (SqlConnection conn = new SqlConnection(strcon))
             {

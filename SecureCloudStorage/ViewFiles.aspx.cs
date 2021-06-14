@@ -15,8 +15,7 @@ namespace SecureCloudStorage
     {
         static string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
         SqlConnection con = new SqlConnection(strcon);
-        //SqlConnection con = new SqlConnection(@"Server=tcp:securestoragedatabase.database.windows.net,1433;Initial Catalog=secureUpload;Persist Security Info=False;User ID=krishna;Password=Cheppanu$911;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
-        //SqlConnection con = new SqlConnection(@"Data Source=localhost\SQLEXPRESS;Initial Catalog=secureUpload;Integrated Security=True");
+
         protected void Page_Load(object sender, EventArgs e)
         {
             string ses = (string)Session["status"];
@@ -29,10 +28,6 @@ namespace SecureCloudStorage
             {
                 Page.ClientScript.RegisterStartupScript(GetType(), "msgbox", "alert('Cannot Access!!!')", true);
             }
-            /*string s = "select * from details where uid='" + uid + "'";
-            SqlDataAdapter sda = new SqlDataAdapter(s, con);
-            DataSet ds = new DataSet();
-            sda.Fill(ds);*/
 
             string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
 

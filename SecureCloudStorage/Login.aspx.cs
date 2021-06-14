@@ -11,8 +11,6 @@ namespace SecureCloudStorage
     public partial class Login : System.Web.UI.Page
     {
         static string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
-        //SqlConnection con = new SqlConnection(@"Server=tcp:securestoragedatabase.database.windows.net,1433;Initial Catalog=secureUpload;Persist Security Info=False;User ID=krishna;Password=Cheppanu$911;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
-        //SqlConnection con = new SqlConnection(@"Data Source=localhost\SQLEXPRESS;Initial Catalog=secureUpload;Integrated Security=True");
         SqlConnection con = new SqlConnection(strcon);
 
 
@@ -54,10 +52,7 @@ namespace SecureCloudStorage
                 da.SelectCommand = sqlComm;
                 DataSet ds = new DataSet();
                 da.Fill(ds);
-                //string s = "select uid,pwd from reg where email='" + TextBox1.Text + "'and pwd='" + TextBox2.Text + "'";
-                //SqlDataAdapter sda = new SqlDataAdapter(s, con);
 
-                //sda.Fill(ds);
                 if (ds.Tables[0].Rows.Count > 0)
                 {
                     Session["status"] = "li";

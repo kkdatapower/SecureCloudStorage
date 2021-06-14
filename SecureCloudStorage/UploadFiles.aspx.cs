@@ -22,8 +22,7 @@ namespace SecureCloudStorage
         static string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
 
         SqlConnection con = new SqlConnection(strcon);
-        //SqlConnection con = new SqlConnection(@"Server=tcp:securestoragedatabase.database.windows.net,1433;Initial Catalog=secureUpload;Persist Security Info=False;User ID=krishna;Password=Cheppanu$911;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
-        //SqlConnection con = new SqlConnection(@"Data Source=localhost\SQLEXPRESS;Initial Catalog=secureUpload;Integrated Security=True");
+
         protected void Page_Load(object sender, EventArgs e)
         {
             string ses = (string)Session["status"];
@@ -34,10 +33,6 @@ namespace SecureCloudStorage
             string uid = (string)Session["uid"];
             if (!IsPostBack)
             {
-                /*string s = "select distinct uid from reg where uid!='" + uid + "'";
-                SqlDataAdapter sda = new SqlDataAdapter(s, con);
-                DataSet ds = new DataSet();
-                sda.Fill(ds);*/
                 string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
 
                 string spName = ConfigurationManager.AppSettings["UploadFilesDistinctUid"].ToString();
@@ -61,12 +56,6 @@ namespace SecureCloudStorage
                     DropDownList1.DataValueField = "uid";
                     DropDownList1.DataBind();
                     DropDownList1.Items.Insert(0, "--Select--");
-
-                    //for (int i = 0; i < count; i++)
-                    //{
-                    //    DropDownList1.Items.Add(new SelectListItem { Text = });
-                    //        //ds.Tables[0].Rows[i][0].ToString(),);
-                    //}
                 }
             }
         }
@@ -174,11 +163,6 @@ namespace SecureCloudStorage
 
             //************************************************Insert**************************
 
-            /*string s = "select fid from details order by fid desc";
-            SqlDataAdapter sds = new SqlDataAdapter(s, con);
-            DataSet dss = new DataSet();
-            sds.Fill(dss);*/
-
             string strcon = ConfigurationManager.AppSettings["DatabaseConnectionString"].ToString();
 
             string spName1 = ConfigurationManager.AppSettings["UploadFilesFidInfo"].ToString();
@@ -215,21 +199,6 @@ namespace SecureCloudStorage
                 string fileExtension = Path.GetExtension(FileUpload1.PostedFile.FileName);
 
                 string uid = (string)Session["uid"];
-                /*string com1 = "";
-                SqlCommand cmd1;
-                com1 = "insert into details(uid,fid,filenm,aes,des,rc6,type,lsb) values (@uid,@fid,@fn,@aes,@des,@rc6,@type,@lsb);";
-                con.Open();
-                cmd1 = new SqlCommand(com1, con);
-                cmd1.Parameters.AddWithValue("@uid", uid);
-                cmd1.Parameters.AddWithValue("@fid", ffid);
-                cmd1.Parameters.AddWithValue("@fn", FileUpload1.FileName);
-                cmd1.Parameters.AddWithValue("@aes", aespath1);
-                cmd1.Parameters.AddWithValue("@des", despath1);
-                cmd1.Parameters.AddWithValue("@rc6", rcpath1);
-                cmd1.Parameters.AddWithValue("@type", fileExtension);
-                cmd1.Parameters.AddWithValue("@lsb", op);
-                cmd1.ExecuteNonQuery();
-                con.Close();*/
 
                 string spName2 = ConfigurationManager.AppSettings["UploadFilesInfo"].ToString();
 
@@ -252,10 +221,6 @@ namespace SecureCloudStorage
                     da2.Fill(ds2);
                 }
 
-                /*string ss = "select fid from details order by fid desc";
-                SqlDataAdapter sdss = new SqlDataAdapter(ss, con);
-                DataSet dsss = new DataSet();
-                sdss.Fill(dsss);*/
 
                 string spName3 = ConfigurationManager.AppSettings["UploadFilesFidInfo"].ToString();
 
@@ -281,21 +246,7 @@ namespace SecureCloudStorage
                     ffids = "101";
                 }
 
-                /*string com2 = "";
-                SqlCommand cmd2;
-                com2 = "insert into details(uid,fid,filenm,aes,des,rc6,type,lsb) values (@uid,@fid,@fn,@aes,@des,@rc6,@type,@lsb);";
-                con.Open();
-                cmd2 = new SqlCommand(com2, con);
-                cmd2.Parameters.AddWithValue("@uid", DropDownList1.Text);
-                cmd2.Parameters.AddWithValue("@fid", ffid);
-                cmd2.Parameters.AddWithValue("@fn", FileUpload1.FileName);
-                cmd2.Parameters.AddWithValue("@aes", aespath1);
-                cmd2.Parameters.AddWithValue("@des", despath1);
-                cmd2.Parameters.AddWithValue("@rc6", rcpath1);
-                cmd2.Parameters.AddWithValue("@type", fileExtension);
-                cmd2.Parameters.AddWithValue("@lsb", op);
-                cmd2.ExecuteNonQuery();
-                con.Close();*/
+
                 if (DropDownList1?.SelectedValue?.ToString() != "--Select--") { 
                 using (SqlConnection conn1 = new SqlConnection(strcon))
                 {
@@ -317,10 +268,6 @@ namespace SecureCloudStorage
                 }
                 }
 
-                /*string sem = "select email from reg where uid='" + DropDownList1.Text + "'";
-                SqlDataAdapter sda = new SqlDataAdapter(sem, con);
-                DataSet ds = new DataSet();
-                sda.Fill(ds);*/
                 string spName5 = ConfigurationManager.AppSettings["EmailInfo"].ToString();
                 using (SqlConnection conn1 = new SqlConnection(strcon))
                 {
@@ -344,17 +291,15 @@ namespace SecureCloudStorage
                     if (ds5.Tables[0].Rows.Count > 0)
                     {
                         string eml = ds5.Tables[0].Rows[0][0].ToString();
-                        //int eml1 = Convert.ToInt16(eml);
-                        //eml1 = eml1 + 1;
+
                         email = eml.ToString();
                     }
                     else
                     {
                         email = Session["usrEmail"]?.ToString();
-                            //"krishnakreddy77@gmail.com";
+                           
                     }
-
-                    //string email = ds.Tables[0].Rows[0][0].ToString();
+                    
                     mail.To.Add(email);
                     mail.Subject = "Image";
                     mail.IsBodyHtml = true;
